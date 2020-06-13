@@ -88,13 +88,23 @@ def parseRange(cmd, maxN):
 
     return selection
 
-def addRange(files, rng):
+def addRange(files, rng, execute=True):
     for i in rng:
-        err = exec("git add {}".format(files[i][1]))
+        err = ""
+        if execute:
+            err = exec("git add {}".format(files[i][1]))
         if err == "":
-            print("Added {}".format(files[i][1]))
+            files[i] = ("Added", files[i][1])
+            print("Added {}.".format(files[i][1]))
         else:
             print("Error: {}".format(err))
+
+def pushCommit(msg):
+    out = exec('git commit -m \"{}\"'.format(msg))
+    tokens = out.split()
+    branch = tokens[0][1:]
+    hashB = tokens[1][:-1]
+    print("Created commit {} on branch {}.".format(hashB, branch))
 
 def main():
     parser = setupArgParse()
@@ -108,11 +118,13 @@ def main():
         addFiles()
     elif args.c:
         commitFiles()
+    elif args.s:
+        snapshot()
     else:
         addFiles()
 
 
-def addFiles():
+def addFiles(execute=True):
     files = getFiles()
     
     if len(files) == 0:
@@ -135,11 +147,18 @@ def addFiles():
         rng = parseRange(cmd, len(files))
 
         if rng != None:
-            addRange(files, rng)
+            addRange(files, rng, execute)
+            if not execute:
+                return (files, rng)
             quitF = True
 
-def commitFiles():
-    files = getFiles()
+def commitFiles(execute=True, stats=None):
+    files = None
+
+    if stats:
+        files = stats
+    else:
+        files = getFiles()
 
     tracked = False
     for v in files:
@@ -147,9 +166,10 @@ def commitFiles():
             tracked = True
             break
 
-    if len(files) == 0 or not tracked:
-        print("Nothing to commit.")
-        sys.exit(0)
+    if execute:
+        if len(files) == 0 or not tracked:
+            print("Nothing to commit.")
+            sys.exit(0)
     
     print("Files to commit:")
 
@@ -160,16 +180,23 @@ def commitFiles():
     msg = input("msg> ")
 
     if msg.strip() != "":
-        out = exec('git commit -m \"{}\"'.format(msg))
-        tokens = out.split()
-        branch = tokens[0][1:]
-        hashB = tokens[1][:-1]
-        print("Created commit {} on branch {}.".format(hashB, branch))
+        if execute:
+            pushCommit(msg)
+        else:
+            return (msg)
+
+def snapshot():
+    addArgs = addFiles(False)
+    comArgs = commitFiles(False, addArgs[0])
+    if comArgs.strip() != "":
+        addRange(addArgs[0], addArgs[1], True)
+        pushCommit(comArgs)
 
 def setupArgParse():
     p = argparse.ArgumentParser(description="Fast Git management.")
     p.add_argument('-a', action="store_true", help="Add files to stage")
     p.add_argument('-c', action="store_true", help="Create new commit")
+    p.add_argument('-s', action="store_true", help="New snapshot, choose files to add and commit")
     return p
 
 main()

@@ -27,15 +27,15 @@ def getFiles():
     for v in output[:-1]:
         tokens = v.split()
         typ = v[0:2]
-        if typ[0] == "A" or typ[0] == "M":
+        if typ[0] == "A" or typ[1] == " ":
             typ = "Added"
         elif typ[1] == "M":
             typ = "Modified"
-        elif typ[0] == "D":
+        elif typ[1] == "D":
             typ = "Deleted"
-        elif typ[0] == "R":
+        elif typ[1] == "R":
             typ = "Renamed"
-        elif typ[0] == "C":
+        elif typ[1] == "C":
             typ = "Copied"
         elif typ[0] == "?":
             typ = "Untracked"

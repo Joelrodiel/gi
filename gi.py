@@ -33,7 +33,7 @@ def getFiles():
     return out
 
 def getType(typ):
-    if typ[0] == "A" or typ[1] == " ":
+    if typ[0] != " " and typ[0] != "?":
         return "Added"
     elif typ[1] == "M":
         return "Modified"
@@ -97,7 +97,7 @@ def addRange(files, rng, execute=True):
         if execute:
             err = exec("git add {}".format(files[i][1]))
         if err == "":
-            files[i] = ("Added", files[i][1])
+            files[i] = ("Added", files[i][1], files[i][2])
             print("Added {}.".format(files[i][1]))
         else:
             print("Error: {}".format(err))
@@ -190,7 +190,10 @@ def commitFiles(execute=True, stats=None):
 
     for v in files:
         if v[0] == "Added":
-            print("   " + v[1])
+            typ = v[2]
+            if execute:
+                typ = "?" + typ
+            print("  {0:10s} {1}".format(getType(typ), v[1]))
 
     msg = input("Commit message: ")
 

@@ -26,23 +26,26 @@ def getFiles():
 
     for v in output[:-1]:
         tokens = v.split()
-        typ = v[0:2]
-        if typ[0] == "A" or typ[1] == " ":
-            typ = "Added"
-        elif typ[1] == "M":
-            typ = "Modified"
-        elif typ[1] == "D":
-            typ = "Deleted"
-        elif typ[1] == "R":
-            typ = "Renamed"
-        elif typ[1] == "C":
-            typ = "Copied"
-        elif typ[0] == "?":
-            typ = "Untracked"
+        typ = getType(v[0:2])
 
         out.append((typ, tokens[1], v[0:2]))
 
     return out
+
+def getType(typ):
+    if typ[0] == "A" or typ[1] == " ":
+        return "Added"
+    elif typ[1] == "M":
+        return "Modified"
+    elif typ[1] == "D":
+        return "Deleted"
+    elif typ[1] == "R":
+        return "Renamed"
+    elif typ[1] == "C":
+        return "Copied"
+    elif typ[0] == "?":
+        return "Untracked"
+    return "???"
 
 def parseRange(cmd, maxN):
     selection = set()
@@ -106,6 +109,11 @@ def pushCommit(msg):
     hashB = tokens[1][:-1]
     print("Created commit {} on branch {}.".format(hashB, branch))
 
+def removeRange(files, rng):
+    for i in rng:
+        exec("git reset -- {}".format(files[i][1]))
+        print("Unstaged {}.".format(files[i][1]))
+
 def main():
     parser = setupArgParse()
     args = parser.parse_args()
@@ -120,6 +128,8 @@ def main():
         commitFiles()
     elif args.s:
         snapshot()
+    elif args.u:
+        unstage()
     else:
         addFiles()
 
@@ -136,7 +146,7 @@ def addFiles(execute=True):
         print("Nothing to add.")
         sys.exit(0)
 
-    print("Select changed to add:")
+    print("Select changes to add:")
 
     for i, v in enumerate(files):
         print("{0:3d}. {1:10s} {2}".format(i, v[0], v[1]))
@@ -197,10 +207,41 @@ def snapshot():
         addRange(addArgs[0], addArgs[1], True)
         pushCommit(comArgs)
 
+def unstage():
+    files = getFiles()
+
+    for v in files:
+        if v[0] != "Added":
+            files.remove(v)
+
+    if len(files) == 0:
+        print("Nothing to unstage.")
+        sys.exit(0)
+
+    print("Select changes to unstage:")
+
+    for i, v in enumerate(files):
+        print("{0:3d}. {1:10s} {2}".format(i, v[0], v[1]))
+
+    quitF = False
+
+    while not quitF:
+        cmd = str(input("> "))
+
+        if cmd == "q" or cmd == "":
+            sys.exit(0)
+
+        rng = parseRange(cmd, len(files))
+
+        if rng != None:
+            removeRange(files, rng)
+            quitF = True
+
 def setupArgParse():
     p = argparse.ArgumentParser(description="Fast Git management.")
     p.add_argument('-a', action="store_true", help="Add files to stage")
     p.add_argument('-c', action="store_true", help="Create new commit")
+    p.add_argument('-u', action="store_true", help="Unstage files")
     p.add_argument('-s', action="store_true", help="New snapshot, choose files to add and commit")
     return p
 

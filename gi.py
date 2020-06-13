@@ -177,7 +177,7 @@ def commitFiles(execute=True, stats=None):
         if v[0] == "Added":
             print("   " + v[1])
 
-    msg = input("msg> ")
+    msg = input("Commit message: ")
 
     if msg.strip() != "":
         if execute:

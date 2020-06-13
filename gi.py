@@ -160,7 +160,7 @@ def commitFiles():
     msg = input("msg> ")
 
     if msg.strip() != "":
-        out = exec("git commit -m {}".format(msg))
+        out = exec('git commit -m \"{}\"'.format(msg))
         tokens = out.split()
         branch = tokens[0][1:]
         hashB = tokens[1][:-1]

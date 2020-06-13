@@ -167,7 +167,7 @@ def commitFiles():
         print("Created commit {} on branch {}.".format(hashB, branch))
 
 def setupArgParse():
-    p = argparse.ArgumentParser(description="Fast Git managment.")
+    p = argparse.ArgumentParser(description="Fast Git management.")
     p.add_argument('-a', action="store_true", help="Add files to stage")
     p.add_argument('-c', action="store_true", help="Create new commit")
     return p

@@ -126,12 +126,17 @@ def main():
 
 def addFiles(execute=True):
     files = getFiles()
-    
+
+    if execute:
+        for v in files:
+            if v[0] == "Added":
+                files.remove(v)
+
     if len(files) == 0:
         print("Nothing to add.")
         sys.exit(0)
 
-    print("Select files to add:")
+    print("Select changed to add:")
 
     for i, v in enumerate(files):
         print("{0:3d}. {1:10s} {2}".format(i, v[0], v[1]))

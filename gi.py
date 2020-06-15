@@ -15,12 +15,12 @@ def checkIfGit():
         sys.exit()
 
 # Main function for executing shell commands and returning the output
-def exec(cmd):
+def exec_cmd(cmd):
     r = subprocess.check_output(cmd, shell=True)
     return r.decode("utf-8")
 
 def getFiles():
-    output = exec("git status --porcelain").split("\n")
+    output = exec_cmd("git status --porcelain").split("\n")
 
     out = []
 
@@ -95,7 +95,7 @@ def addRange(files, rng, execute=True):
     for i in rng:
         err = ""
         if execute:
-            err = exec("git add {}".format(files[i][1]))
+            err = exec_cmd("git add {}".format(files[i][1]))
         if err == "":
             files[i] = ("Added", files[i][1], files[i][2])
             print("Added {}.".format(files[i][1]))
@@ -103,7 +103,7 @@ def addRange(files, rng, execute=True):
             print("Error: {}".format(err))
 
 def pushCommit(msg):
-    out = exec('git commit -m \"{}\"'.format(msg))
+    out = exec_cmd('git commit -m \"{}\"'.format(msg))
     tokens = out.split()
     branch = tokens[0][1:]
     hashB = tokens[1][:-1]
@@ -111,7 +111,7 @@ def pushCommit(msg):
 
 def removeRange(files, rng):
     for i in rng:
-        exec("git reset -- {}".format(files[i][1]))
+        exec_cmd("git reset -- {}".format(files[i][1]))
         print("Unstaged {}.".format(files[i][1]))
 
 def main():

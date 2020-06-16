@@ -242,10 +242,11 @@ def unstage():
 
 def setupArgParse():
     p = argparse.ArgumentParser(description="Fast Git management.")
-    p.add_argument('-a', action="store_true", help="Add files to stage")
-    p.add_argument('-c', action="store_true", help="Create new commit")
-    p.add_argument('-u', action="store_true", help="Unstage files")
-    p.add_argument('-s', action="store_true", help="New snapshot, choose files to add and commit")
+    options = p.add_argument_group('Options')
+    options.add_argument('-a', action="store_true", help="Add files to stage")
+    options.add_argument('-c', action="store_true", help="Create new commit")
+    options.add_argument('-u', action="store_true", help="Unstage files")
+    options.add_argument('-s', action="store_true", help="Combination -a and -c")
     return p
 
 main()

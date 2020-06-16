@@ -26,26 +26,25 @@ def getFiles():
 
     for v in output[:-1]:
         tokens = v.split()
-        typ = getType(v[0:2])
+        typAdded = getType(v[0:1])
+        typUnstage = getType(v[1:2])
 
-        out.append((typ, tokens[1], v[0:2]))
+        out.append((typAdded, typUnstage, tokens[1], v[0:2]))
 
     return out
 
 def getType(typ):
-    if typ[0] != " " and typ[0] != "?":
-        return "Added"
-    elif typ[1] == "M":
+    if typ == "M":
         return "Modified"
-    elif typ[1] == "D":
+    elif typ == "D":
         return "Deleted"
-    elif typ[1] == "R":
+    elif typ == "R":
         return "Renamed"
-    elif typ[1] == "C":
+    elif typ == "C":
         return "Copied"
-    elif typ[0] == "?":
+    elif typ == "?":
         return "Untracked"
-    return "???"
+    return ""
 
 def parseRange(cmd, maxN):
     selection = set()
@@ -95,10 +94,10 @@ def addRange(files, rng, execute=True):
     for i in rng:
         err = ""
         if execute:
-            err = exec_cmd("git add {}".format(files[i][1]))
+            err = exec_cmd("git add {}".format(files[i][2]))
         if err == "":
-            files[i] = ("Added", files[i][1], files[i][2])
-            print("Added {}.".format(files[i][1]))
+            files[i] = (files[i][1], "", files[i][2], files[i][3][1])
+            print("Added {}.".format(files[i][2]))
         else:
             print("Error: {}".format(err))
 
@@ -139,7 +138,7 @@ def addFiles(execute=True):
 
     if execute:
         for v in files:
-            if v[0] == "Added":
+            if not v[1]:
                 files.remove(v)
 
     if len(files) == 0:
@@ -149,7 +148,7 @@ def addFiles(execute=True):
     print("Select changes to add:")
 
     for i, v in enumerate(files):
-        print("{0:3d}. {1:10s} {2}".format(i, v[0], v[1]))
+        print("{0:3d}. {1:10s} {2}".format(i, v[1], v[2]))
 
     quitF = False
 
@@ -177,7 +176,7 @@ def commitFiles(execute=True, stats=None):
 
     tracked = False
     for v in files:
-        if v[0] == "Added":
+        if v[0]:
             tracked = True
             break
 
@@ -189,11 +188,8 @@ def commitFiles(execute=True, stats=None):
     print("Files to commit:")
 
     for v in files:
-        if v[0] == "Added":
-            typ = v[2]
-            if execute:
-                typ = "?" + typ
-            print("  {0:10s} {1}".format(getType(typ), v[1]))
+        if v[0] and v[0] != "Untracked":
+            print("  {0:10s} {1}".format(v[0], v[2]))
 
     msg = input("Commit message: ")
 

@@ -34,7 +34,9 @@ def getFiles():
     return out
 
 def getType(typ):
-    if typ == "M":
+    if typ == "A":
+        return "Added"
+    elif typ == "M":
         return "Modified"
     elif typ == "D":
         return "Deleted"
@@ -97,7 +99,10 @@ def addRange(files, rng, execute=True):
             if execute:
                 err = exec_cmd("git add {}".format(files[i][2]))
             if err == "":
-                files[i] = (files[i][1], files[i][1], files[i][2], files[i][3][1]+" ")
+                typ = getType(files[i][3][1])
+                if files[i][3][1] == "?":
+                    typ = "Added"
+                files[i] = (typ, files[i][1], files[i][2], files[i][3][1]+" ")
                 print("Added {}.".format(files[i][2]))
             else:
                 print("Error: {}".format(err))
@@ -182,7 +187,7 @@ def commitFiles(execute=True, stats=None):
 
     tracked = False
     for v in files:
-        if v[0] and v[1] != "Untracked":
+        if v[0] and v[0] != "Untracked":
             tracked = True
             break
 
@@ -190,11 +195,11 @@ def commitFiles(execute=True, stats=None):
         if len(files) == 0 or not tracked:
             print("Nothing to commit.")
             sys.exit(0)
-    
+
     print("Files to commit:")
 
     for v in files:
-        if v[0] and v[1] != "Untracked":
+        if v[0] and v[0] != "Untracked":
             print("  {0:10s} {1}".format(v[0], v[2]))
 
     msg = input("Commit message: ")

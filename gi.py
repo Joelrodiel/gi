@@ -92,14 +92,17 @@ def parseRange(cmd, maxN):
 
 def addRange(files, rng, execute=True):
     for i in rng:
-        err = ""
-        if execute:
-            err = exec_cmd("git add {}".format(files[i][2]))
-        if err == "":
-            files[i] = (files[i][1], "", files[i][2], files[i][3][1])
-            print("Added {}.".format(files[i][2]))
+        if files[i][1]:
+            err = ""
+            if execute:
+                err = exec_cmd("git add {}".format(files[i][2]))
+            if err == "":
+                files[i] = (files[i][1], "", files[i][2], files[i][3][1])
+                print("Added {}.".format(files[i][2]))
+            else:
+                print("Error: {}".format(err))
         else:
-            print("Error: {}".format(err))
+            print("{} already added.".format(files[i][2]))
 
 def pushCommit(msg):
     out = exec_cmd('git commit -m \"{}\"'.format(msg))
@@ -110,8 +113,8 @@ def pushCommit(msg):
 
 def removeRange(files, rng):
     for i in rng:
-        exec_cmd("git reset -- {}".format(files[i][1]))
-        print("Unstaged {}.".format(files[i][1]))
+        exec_cmd("git reset -- {}".format(files[i][2]))
+        print("Unstaged {}.".format(files[i][2]))
 
 def main():
     parser = setupArgParse()
@@ -148,7 +151,10 @@ def addFiles(execute=True):
     print("Select changes to add:")
 
     for i, v in enumerate(files):
-        print("{0:3d}. {1:10s} {2}".format(i, v[1], v[2]))
+        chng = v[1]
+        if not v[1]:
+            chng = "Added"
+        print("{0:3d}. {1:10s} {2}".format(i, chng, v[2]))
 
     quitF = False
 
@@ -176,7 +182,7 @@ def commitFiles(execute=True, stats=None):
 
     tracked = False
     for v in files:
-        if v[0]:
+        if v[0] and v[1] != "Untracked":
             tracked = True
             break
 
@@ -188,7 +194,7 @@ def commitFiles(execute=True, stats=None):
     print("Files to commit:")
 
     for v in files:
-        if v[0] and v[0] != "Untracked":
+        if v[0] and v[1] != "Untracked":
             print("  {0:10s} {1}".format(v[0], v[2]))
 
     msg = input("Commit message: ")
@@ -207,11 +213,11 @@ def snapshot():
         pushCommit(comArgs)
 
 def unstage():
-    files = getFiles()
+    files = []
 
-    for v in files:
-        if v[0] != "Added":
-            files.remove(v)
+    for v in getFiles():
+        if v[0] and v[0] != "Untracked":
+            files.append(v)
 
     if len(files) == 0:
         print("Nothing to unstage.")
@@ -220,7 +226,7 @@ def unstage():
     print("Select changes to unstage:")
 
     for i, v in enumerate(files):
-        print("{0:3d}. {1:10s} {2}".format(i, v[0], v[1]))
+        print("{0:3d}. {1:10s} {2}".format(i, v[0], v[2]))
 
     quitF = False
 

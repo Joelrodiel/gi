@@ -97,7 +97,7 @@ def addRange(files, rng, execute=True):
             if execute:
                 err = exec_cmd("git add {}".format(files[i][2]))
             if err == "":
-                files[i] = (files[i][1], "", files[i][2], files[i][3][1])
+                files[i] = (files[i][1], files[i][1], files[i][2], files[i][3][1]+" ")
                 print("Added {}.".format(files[i][2]))
             else:
                 print("Error: {}".format(err))

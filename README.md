@@ -15,6 +15,7 @@ Options:
   -c          Create new commit
   -u          Unstage files
   -s          Combination of -a and -c, choose files to add and commit
+  -d          Batch add in directory
 ```
   
 For commands `gi -a`, `gi -u` and `gi -s` number input can be a combination of:

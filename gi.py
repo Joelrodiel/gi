@@ -1,7 +1,7 @@
 import os
 import sys
 import signal
-import argparse
+import getopt
 import subprocess
 
 # Handle the Ctrl+C exiting
@@ -122,25 +122,34 @@ def removeRange(files, rng):
         print("Unstaged {}.".format(files[i][2]))
 
 def main():
-    parser = setupArgParse()
-    args = parser.parse_args()
+    try:
+        optlist, args = getopt.getopt(sys.argv[1:], "hacusd:")
+    except getopt.GetoptError as err:
+        if "-d" in str(err):
+            optlist = [('-d', '.')]
+        else:
+            print("Error: " + str(err))
+            printUsage()
+            sys.exit(2)
 
     signal.signal(signal.SIGINT, signal_handler)
 
     checkIfGit()
 
-    if args.a:
+    arg = optlist[0][0]
+
+    if len(optlist) == 0 or arg == "-a":
         addFiles()
-    elif args.c:
+    elif arg == "-c":
         commitFiles()
-    elif args.s:
+    elif arg == "-s":
         snapshot()
-    elif args.u:
+    elif arg == "-u":
         unstage()
-    elif args.d:
-        batchAdd()
-    else:
-        addFiles()
+    elif arg == "-d":
+        batchAdd(optlist[0][1])
+    elif arg == "-h":
+        printUsage()
 
 
 def addFiles(execute=True):
@@ -249,8 +258,8 @@ def unstage():
             removeRange(files, rng)
             quitF = True
 
-def batchAdd():
-    files = getFiles()
+def batchAdd(dir):
+    files = getFiles(dir)
 
     for v in files:
         if not v[1]:
@@ -271,14 +280,23 @@ def batchAdd():
     if len(rangeAdd) > 0:
         addRange(files, rangeAdd)
 
-def setupArgParse():
-    p = argparse.ArgumentParser(description="Fast Git management.")
-    options = p.add_argument_group('Options')
-    options.add_argument('-a', action="store_true", help="Add files to stage")
-    options.add_argument('-c', action="store_true", help="Create new commit")
-    options.add_argument('-u', action="store_true", help="Unstage files")
-    options.add_argument('-s', action="store_true", help="Combination -a and -c")
-    options.add_argument('-d', action="store_true", help="Batch add in directory")
-    return p
+def printUsage():
+    print(
+    '''
+Usage: gi.py [-h] [-a] [-c] [-u] [-s] [-d]
+
+    Fast Git management.
+
+    optional arguments:
+    -h          show this help message and exit
+
+    Options:
+    -a          Add files to stage
+    -c          Create new commit
+    -u          Unstage files
+    -s          Combination of -a and -c, choose files to add and commit
+    -d          Batch add in directory
+    '''
+    )
 
 main()

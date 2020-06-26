@@ -137,6 +137,8 @@ def main():
         snapshot()
     elif args.u:
         unstage()
+    elif args.d:
+        batchAdd()
     else:
         addFiles()
 
@@ -247,6 +249,28 @@ def unstage():
             removeRange(files, rng)
             quitF = True
 
+def batchAdd():
+    files = getFiles()
+
+    for v in files:
+        if not v[1]:
+            files.remove(v)
+
+    if len(files) == 0:
+        print("Nothing to add.")
+        sys.exit(0)
+
+    rangeAdd = []
+
+    for i, v in enumerate(files):
+        prompt = "Add {}? (Y/n): ".format(v[2])
+        cmd = raw_input(prompt)
+        if cmd == "Y" or cmd == "y" or cmd == "":
+            rangeAdd.append(i)
+
+    if len(rangeAdd) > 0:
+        addRange(files, rangeAdd)
+
 def setupArgParse():
     p = argparse.ArgumentParser(description="Fast Git management.")
     options = p.add_argument_group('Options')
@@ -254,6 +278,7 @@ def setupArgParse():
     options.add_argument('-c', action="store_true", help="Create new commit")
     options.add_argument('-u', action="store_true", help="Unstage files")
     options.add_argument('-s', action="store_true", help="Combination -a and -c")
+    options.add_argument('-d', action="store_true", help="Batch add in directory")
     return p
 
 main()

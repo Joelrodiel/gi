@@ -19,8 +19,8 @@ def exec_cmd(cmd):
     r = subprocess.check_output(cmd, shell=True)
     return r.decode("utf-8")
 
-def getFiles():
-    output = exec_cmd("git status --porcelain").split("\n")
+def getFiles(dir="."):
+    output = exec_cmd("git status {} --porcelain".format(dir)).split("\n")
 
     out = []
 

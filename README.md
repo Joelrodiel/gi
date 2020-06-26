@@ -3,7 +3,7 @@
 
 ## Usage
 ```
-Usage: gi.py [-h] [-a] [-c] [-u] [-s]
+Usage: gi.py [-h] [-a] [-c] [-u] [-s] [-d]
 
 Fast Git management.
 

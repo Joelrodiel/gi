@@ -164,7 +164,7 @@ def addFiles(execute=True):
     quitF = False
 
     while not quitF:
-        cmd = str(input("> "))
+        cmd = str(raw_input("> "))
 
         if cmd == "q" or cmd == "":
             sys.exit(0)
@@ -202,7 +202,7 @@ def commitFiles(execute=True, stats=None):
         if v[0] and v[0] != "Untracked":
             print("  {0:10s} {1}".format(v[0], v[2]))
 
-    msg = input("Commit message: ")
+    msg = raw_input("Commit message: ")
 
     if msg.strip() != "":
         if execute:
@@ -236,7 +236,7 @@ def unstage():
     quitF = False
 
     while not quitF:
-        cmd = str(input("> "))
+        cmd = str(raw_input("> "))
 
         if cmd == "q" or cmd == "":
             sys.exit(0)
